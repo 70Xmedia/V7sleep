@@ -1,1 +1,257 @@
-hello
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>V7's Sleep Countdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#05060d;--ink:#e8ecff;--dim:#8a91b8;--card:rgba(255,255,255,.05);--line:rgba(255,255,255,.1);--c1:#3dffb5;--c2:#7a5cff;--amber:#ffb62e;--red:#ff3b5c;--stage:var(--c1);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;overflow-x:hidden;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(60% 50% at 20% 0%,color-mix(in srgb,var(--stage) 22%,transparent),transparent),radial-gradient(50% 40% at 90% 30%,rgba(122,92,255,.22),transparent);transition:background 1s}
+body::after{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:56px 56px;opacity:.25;mask-image:radial-gradient(70% 60% at 50% 30%,#000,transparent)}
+.wrap{max-width:1100px;margin:0 auto;padding:20px}
+nav{display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim);letter-spacing:.12em;padding:8px 0}
+.live{display:flex;gap:8px;align-items:center}.live i{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.hero{text-align:center;padding:5vh 0 4vh}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;color:var(--stage);border:1px solid var(--stage);padding:6px 14px;border-radius:99px;background:color-mix(in srgb,var(--stage) 10%,transparent)}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(40px,10vw,120px);line-height:.95;margin:22px 0 14px;letter-spacing:-.02em;text-transform:uppercase;position:relative}
+h1 span{background:linear-gradient(90deg,#fff,var(--stage));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 24px color-mix(in srgb,var(--stage) 55%,transparent))}
+h1.shake{animation:shake .4s infinite}
+@keyframes shake{25%{transform:translate(2px,-1px)}50%{transform:translate(-2px,1px)}75%{transform:translate(1px,2px)}}
+.sub{font-size:clamp(16px,2.4vw,24px);color:var(--dim);margin:0}
+.glass{background:var(--card);border:1px solid var(--line);border-radius:24px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 20px 60px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08)}
+.timer{margin:34px auto 0;padding:34px 20px;max-width:900px;position:relative;overflow:hidden}
+.timer::before{content:"";position:absolute;inset:-2px;background:conic-gradient(from 0deg,transparent,var(--stage),transparent 40%);animation:spin 5s linear infinite;opacity:.25;z-index:0}
+.timer::after{content:"";position:absolute;inset:1px;background:#080a16;border-radius:23px;z-index:0}
+.timer>*{position:relative;z-index:1}
+@keyframes spin{to{transform:rotate(360deg)}}
+.digits{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(34px,9vw,104px);display:flex;justify-content:center;align-items:baseline;gap:.15em;flex-wrap:wrap;text-shadow:0 0 30px color-mix(in srgb,var(--stage) 70%,transparent);color:#fff}
+.digits small{font-size:.22em;color:var(--stage);letter-spacing:.15em;margin-right:.6em}
+.digits .colon{animation:pulse 1s infinite;color:var(--stage)}
+.lbl{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--dim);letter-spacing:.3em;margin-top:14px}
+.secs{font-family:'JetBrains Mono',monospace;color:var(--stage);font-size:14px;margin-top:6px}
+.status{margin:26px auto 0;max-width:900px;display:flex;gap:16px;align-items:center;justify-content:center;padding:18px 24px;border-color:var(--stage);box-shadow:0 0 40px color-mix(in srgb,var(--stage) 25%,transparent)}
+.status .em{font-size:34px}
+.status b{font-size:clamp(18px,3.4vw,32px);text-transform:uppercase;letter-spacing:.03em}
+.stages{display:flex;gap:6px;max-width:900px;margin:14px auto 0}
+.stages i{flex:1;height:6px;border-radius:9px;background:var(--line);transition:.5s}
+.stages i.on{background:var(--stage);box-shadow:0 0 12px var(--stage)}
+section{padding:6vh 0 2vh}
+h2{font-family:'Orbitron',sans-serif;font-size:clamp(24px,5vw,48px);margin:0 0 8px;letter-spacing:.02em}
+.kicker{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.25em;color:var(--amber);margin-bottom:8px}
+.p{color:var(--dim);margin:0 0 24px;max-width:640px}
+.beer{padding:28px}
+.big{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px}
+.count{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(56px,14vw,140px);line-height:1;color:var(--amber);text-shadow:0 0 40px rgba(255,182,46,.6)}
+.count small{font-size:.2em;color:var(--dim);letter-spacing:.2em;display:block}
+.bar{height:34px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid var(--line);overflow:hidden;margin:20px 0;position:relative}
+.bar div{height:100%;width:0;border-radius:99px;background:repeating-linear-gradient(115deg,#ffd45c 0 14px,#ff9d1a 14px 28px);box-shadow:0 0 30px rgba(255,182,46,.7);transition:width 1s cubic-bezier(.2,.8,.2,1);background-size:200% 100%;animation:slide 2s linear infinite}
+@keyframes slide{to{background-position:56px 0}}
+.bar span{position:absolute;inset:0;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;mix-blend-mode:difference;color:#fff}
+.rack{display:flex;gap:10px;overflow-x:auto;padding:10px 4px 16px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.mug{flex:0 0 auto;width:54px;height:72px;border-radius:8px 8px 14px 14px;border:2px solid var(--line);position:relative;scroll-snap-align:start;display:grid;place-items:center;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--dim);opacity:.5}
+.mug.full{border-color:#ffd45c;background:linear-gradient(#fff8 0 14%,#ffb62e 14%);color:#3a2100;opacity:1;font-weight:700;box-shadow:0 0 18px rgba(255,182,46,.5);animation:pop .5s backwards}
+.mug.next{border-style:dashed;border-color:var(--amber);opacity:1;color:var(--amber)}
+@keyframes pop{from{transform:scale(.3) rotate(-20deg);opacity:0}}
+.next-line{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--amber)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.card{padding:22px}
+.card h3{margin:0 0 4px;font-size:15px;color:var(--dim);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.card .v{font-family:'Orbitron',sans-serif;font-size:34px;margin:6px 0 12px}
+.m{height:10px;background:rgba(255,255,255,.08);border-radius:9px;overflow:hidden}
+.m i{display:block;height:100%;border-radius:9px;transition:width 1s;background:linear-gradient(90deg,var(--c1),var(--c2))}
+.martin{display:flex;gap:18px;align-items:center}
+.martin .face{font-size:64px;filter:drop-shadow(0 0 20px rgba(255,255,255,.2))}
+.martin q{font-size:20px;quotes:none;display:block}
+.log{font-family:'JetBrains Mono',monospace;font-size:14px;padding:8px 22px}
+.log div{padding:14px 0;border-bottom:1px dashed var(--line);display:flex;gap:16px;animation:pop .5s backwards}
+.log div:last-child{border:0}.log time{color:var(--stage);flex:0 0 74px}
+.sim{padding:22px;margin-top:20px}
+.sim input{width:100%;accent-color:var(--c1);margin:14px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+button{font:inherit;font-weight:700;color:#05060d;background:var(--c1);border:0;border-radius:99px;padding:12px 22px;cursor:pointer;box-shadow:0 0 24px rgba(61,255,181,.4);transition:.2s}
+button:hover{transform:translateY(-2px)}button.g{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+footer{text-align:center;color:var(--dim);font-size:13px;padding:50px 0 30px;font-family:'JetBrains Mono',monospace}
+.ticker{overflow:hidden;white-space:nowrap;border-block:1px solid var(--line);background:rgba(255,255,255,.03);font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--amber);padding:10px 0;margin-top:26px}
+.ticker div{display:inline-block;padding-left:100%;animation:tick 40s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+.exc{padding:28px;text-align:center}
+.exc .say{font-size:clamp(20px,4vw,34px);font-weight:700;min-height:2.6em;display:grid;place-items:center;margin:10px 0}
+.exc .rep{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:15px;min-height:3em}
+.exc .bonus{color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;margin-top:14px}
+.exc .say.flip{animation:pop .4s}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav><div>V7·SLEEPWATCH™ v7.0</div><div class="live"><i></i><span id="mode">LIVE FEED</span></div></nav>
+
+<header class="hero">
+  <span class="tag" id="tag">CASE FILE #0007 · MARTIN VS. SLEEP</span>
+  <h1 id="h1"><span>V7 still hasn't slept.</span></h1>
+  <p class="sub">This is becoming a problem for Martin.</p>
+
+  <div class="glass timer">
+    <div class="digits"><span id="hh">00</span><small>HOURS</small><span class="colon">:</span><span id="mm">00</span><small>MINUTES</small></div>
+    <div class="secs" id="ss">+00 seconds of avoidable suffering</div>
+    <div class="lbl">TIME SINCE V7 LAST SLEPT</div>
+  </div>
+
+  <div class="glass status"><span class="em" id="em">🟢</span><b id="stxt">Everything is fine</b></div>
+  <div class="stages" id="stages"></div>
+  <div class="ticker"><div id="tick"></div></div>
+</header>
+
+<section id="beer">
+  <div class="kicker">// PRIMARY METRIC · DO NOT LOOK DIRECTLY</div>
+  <h2>MARTIN'S BEER COUNTER</h2>
+  <p class="p">Every 20 minutes V7 stays awake, Martin must drink one beer. These are the rules. Nobody voted on them. Martin objects.</p>
+  <div class="glass beer">
+    <div class="big">
+      <div class="count"><small>BEERS CONSUMED</small><span id="beers">0</span> 🍺</div>
+      <div class="next-line" id="next">Next beer in 20:00</div>
+    </div>
+    <div class="bar"><div id="fill"></div><span id="pct">0% OF DAILY LIVER BUDGET</span></div>
+    <div class="rack" id="rack"></div>
+  </div>
+</section>
+
+<section>
+  <div class="kicker">// MARTIN VITALS</div>
+  <h2>LIVE DAMAGE REPORT</h2>
+  <p class="p">Real-time data from Martin's body, wallet and last remaining shred of patience.</p>
+  <div class="grid">
+    <div class="glass card"><h3>Martin's condition</h3><div class="martin"><div class="face" id="face">😀</div><q id="quote">"I'm good."</q></div></div>
+    <div class="glass card"><h3>Sobriety</h3><div class="v" id="v1">100%</div><div class="m"><i id="m1"></i></div></div>
+    <div class="glass card"><h3>Martin's dignity</h3><div class="v" id="v2">100%</div><div class="m"><i id="m2"></i></div></div>
+    <div class="glass card"><h3>Beer tab (USD)</h3><div class="v" id="v3">$0</div><div class="m"><i id="m3"></i></div></div>
+    <div class="glass card"><h3>V7 guilt level</h3><div class="v" id="v4">0%</div><div class="m"><i id="m4"></i></div></div>
+    <div class="glass card"><h3>Pillow's feelings</h3><div class="v" id="v5">Neutral</div><div class="m"><i id="m5"></i></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="kicker">// INCIDENT LOG</div>
+  <h2>HOW WE GOT HERE</h2>
+  <div class="glass log" id="log"></div>
+
+  <div class="glass sim">
+    <div class="row"><b>⏱ Time-travel simulator</b><span class="tag" id="simval" style="color:var(--dim);border-color:var(--line)">LIVE</span></div>
+    <input type="range" id="sim" min="0" max="1740" step="5" value="0" aria-label="Simulate hours awake">
+    <div class="row"><span style="color:var(--dim);font-size:14px">Drag to preview how bad it could get (0–29h).</span>
+    <span><button class="g" id="live">Back to live</button> <button id="slept">V7 slept (allegedly)</button></span></div>
+  </div>
+</section>
+
+<section>
+  <div class="kicker">// EXCUSE ENGINE 3000</div>
+  <h2>WHY V7 IS STILL AWAKE</h2>
+  <p class="p">Scientifically generated reasons. Each one is a lie. Each one costs Martin a bonus beer.</p>
+  <div class="glass exc">
+    <div class="say" id="ex">Press the button. Witness the nonsense.</div>
+    <div class="rep" id="rp"></div>
+    <button id="exb">Generate V7's excuse</button>
+    <div class="bonus">EMERGENCY BONUS BEERS: <b id="bb" style="color:var(--amber)">0</b> 🍺</div>
+  </div>
+</section>
+
+<footer>Made with love, concern and 0 hours of sleep.<br>No Martins were harmed. Several livers were consulted.</footer>
+</div>
+
+<script>
+const STAGES=[
+ [0,'🟢','Probably fine.','#3dffb5','😀','"I\'m good. Totally chill."'],
+ [2,'🟡','Okay V7, go to bed.','#d8ff3d','🙂','"Bro. It\'s late."'],
+ [4,'🟠','Martin is getting concerned.','#ffb62e','😐','"I\'m watching you. Blink twice if you\'re tired."'],
+ [6,'🟠','This is becoming irresponsible.','#ff8a2e','😬','"You\'re not a vampire. Stop pretending."'],
+ [8,'🔴','MARTIN HAS STARTED DRINKING.','#ff3b5c','🥴','"Every. Twenty. Minutes. Do you understand?"'],
+ [12,'🚨','V7. PLEASE. GO TO SLEEP.','#ff2bd6','🫠','"I can see through time. Please. Sleep."']
+];
+const LOG=[
+ [0,'V7 says "just one more episode".'],
+ [1,'V7 discovers a new hobby. It is 3 a.m. somewhere.'],
+ [2,'Martin sends "go to bed" emoji. Ignored.'],
+ [4,'V7: "I\'m not even tired." (Eyes: 4% open.)'],
+ [6,'Martin has opened a beer "just to relax".'],
+ [8,'Martin has opened many beers. Not to relax.'],
+ [10,'V7 starts a podcast at midnight. Martin weeps.'],
+ [12,'Martin drafts a will. Leaves everything to a pillow.'],
+ [16,'Sun has risen twice. V7 is unmoved.'],
+ [20,'Martin now speaks only in toasts.'],
+ [24,'Scientists are confused. Martin is not conscious for questions.']
+];
+const $=id=>document.getElementById(id);
+const KEY='v7_last_slept';
+let start;
+try{start=+localStorage.getItem(KEY)}catch(e){}
+if(!start||start>Date.now()){start=Date.now()-(7*60+13)*60000;try{localStorage.setItem(KEY,start)}catch(e){}}
+let sim=null,lastB=-1;
+$('stages').innerHTML=STAGES.map(()=>'<i></i>').join('');
+$('tick').textContent=('🍺 BREAKING: V7 STILL AWAKE 🍺 MARTIN REQUESTS BACKUP 🍺 THE PILLOW IS TAKING THIS PERSONALLY 🍺 EXPERTS AGREE: BED EXISTS 🍺 ').repeat(3);
+const pad=n=>String(n).padStart(2,'0');
+function set(id,pct,txt){$('m'+id).style.width=Math.min(100,pct)+'%';$('v'+id).textContent=txt}
+function render(){
+  const ms=sim!==null?sim*60000:Date.now()-start;
+  const totalMin=Math.floor(ms/60000),h=Math.floor(totalMin/60),m=totalMin%60,s=Math.floor(ms/1000)%60;
+  $('hh').textContent=pad(h);$('mm').textContent=pad(m);
+  $('ss').textContent='+'+pad(s)+' seconds of avoidable suffering';
+  const hrs=ms/3600000;
+  let si=0;STAGES.forEach((x,i)=>{if(hrs>=x[0])si=i});
+  const S=STAGES[si];
+  document.documentElement.style.setProperty('--stage',S[3]);
+  $('em').textContent=S[1];$('stxt').textContent=S[2];
+  $('face').textContent=S[4];$('quote').textContent=S[5];
+  [...$('stages').children].forEach((el,i)=>el.classList.toggle('on',i<=si));
+  $('h1').className=si>=4?'shake':'';
+  const beers=Math.floor(totalMin/20);
+  $('beers').textContent=beers;
+  const left=20*60-((ms/1000)%1200);
+  $('next').textContent='Next beer in '+pad(Math.floor(left/60))+':'+pad(Math.floor(left%60));
+  const pct=Math.min(100,beers/36*100);
+  $('fill').style.width=pct+'%';
+  $('pct').textContent=(beers>36?'LIVER BUDGET EXCEEDED · ':Math.round(pct)+'% OF DAILY LIVER BUDGET · ')+beers+' BEERS';
+  if(beers!==lastB){
+    const n=Math.max(36,beers+2);let html='';
+    for(let i=1;i<=n;i++)html+='<div class="mug '+(i<=beers?'full':i===beers+1?'next':'')+'">'+i+'</div>';
+    $('rack').innerHTML=html;lastB=beers;
+    const r=$('rack');if(beers>10)r.scrollLeft=(beers-4)*64;
+  }
+  set(1,100-beers*4,Math.max(0,100-beers*4)+'%');
+  set(2,100-beers*3.2,Math.max(0,Math.round(100-beers*3.2))+'%');
+  set(3,beers*4,'$'+(beers*6).toLocaleString());
+  const g=Math.min(100,Math.round(hrs*8));set(4,g,g>=100?'MAXED OUT':g+'%');
+  $('v5').textContent=hrs<4?'Neutral':hrs<8?'Lonely':hrs<12?'Heartbroken':'Filing a report';set(5,hrs*8,$('v5').textContent);
+  $('v5').style.fontSize='24px';
+  $('log').innerHTML=LOG.filter(x=>hrs>=x[0]).map(x=>'<div><time>+'+pad(x[0])+'h</time><span>'+x[1]+'</span></div>').join('');
+}
+render();setInterval(render,1000);
+const EX=[
+ ['"I\'m not tired, I\'m just resting my eyes for 9 hours."','Martin drinks in silence.'],
+ ['"Sleep is a social construct."','Martin: "So is beer, and I\'m committed."'],
+ ['"I\'ll sleep when I\'m dead."','Martin: "That\'s the plan you\'re on. Cheers."'],
+ ['"I\'m in the zone."','Martin: "The zone has a bed in it. Find it."'],
+ ['"It\'s only 3 a.m. somewhere."','Martin checks the map. It is 3 a.m. here.'],
+ ['"I have to finish this one thing." (Nobody knows what.)','Martin opens a second beer for the mystery.'],
+ ['"I slept last week. I\'m good."','Martin\'s liver files a formal complaint.'],
+ ['"My pillow is too far away."','Martin offers to carry the pillow. Refused.'],
+ ['"Just 5 more minutes." (Said 14 times.)','Martin stops counting. Not beers though.']
+];
+let bonus=0,lastEx=-1;
+$('exb').onclick=()=>{
+  let i;do{i=Math.floor(Math.random()*EX.length)}while(i===lastEx);lastEx=i;
+  $('ex').textContent=EX[i][0];$('rp').textContent=EX[i][1];
+  $('ex').classList.remove('flip');void $('ex').offsetWidth;$('ex').classList.add('flip');
+  $('bb').textContent=++bonus;
+};
+$('sim').addEventListener('input',e=>{sim=+e.target.value;$('mode').textContent='SIMULATION';$('simval').textContent=Math.floor(sim/60)+'H '+sim%60+'M';render()});
+$('live').onclick=()=>{sim=null;$('sim').value=0;$('mode').textContent='LIVE FEED';$('simval').textContent='LIVE';render()};
+$('slept').onclick=()=>{start=Date.now();try{localStorage.setItem(KEY,start)}catch(e){};sim=null;$('sim').value=0;$('mode').textContent='LIVE FEED';$('simval').textContent='LIVE';lastB=-1;render()};
+</script>
+</body>
+</html>
